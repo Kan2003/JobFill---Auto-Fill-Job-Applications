@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JobFill Test Form</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f4f6fb; padding: 40px 20px; }
+    h1 { color: #1a56db; margin-bottom: 6px; }
+    .subtitle { color: #666; margin-bottom: 32px; font-size: 14px; }
+    .card { background: #fff; border-radius: 12px; padding: 28px; max-width: 700px; margin: 0 auto 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    h2 { font-size: 15px; color: #374151; margin-bottom: 18px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%; padding: 9px 12px; border: 1.5px solid #d1d5db;
+      border-radius: 7px; font-size: 14px; color: #111;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #1a56db; }
+    textarea { resize: vertical; min-height: 80px; }
+    .result { margin-top: 18px; padding: 12px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; font-size: 13px; color: #166534; display: none; }
+    .badge { display: inline-block; background: #dbeafe; color: #1e40af; border-radius: 999px; font-size: 11px; font-weight: 700; padding: 2px 10px; margin-left: 8px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<div style="max-width:700px;margin:0 auto 24px">
+  <h1>JobFill Extension — Test Form</h1>
+  <p class="subtitle">Fill in your details in the extension popup, then click <strong>Fill Page</strong>. All fields below should auto-populate.</p>
+</div>
+
+<!-- Personal Info -->
+<div class="card">
+  <h2>Personal Information <span class="badge">Personal Tab</span></h2>
+  <div class="grid">
+    <div>
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" name="fullName" placeholder="John Doe">
+    </div>
+    <div>
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" placeholder="john@example.com">
+    </div>
+    <div>
+      <label for="firstName">First Name</label>
+      <input type="text" id="firstName" name="firstName" placeholder="John">
+    </div>
+    <div>
+      <label for="lastName">Last Name</label>
+      <input type="text" id="lastName" name="lastName" placeholder="Doe">
+    </div>
+    <div>
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" placeholder="+1 555-000-0000">
+    </div>
+    <div>
+      <label for="address">Street Address</label>
+      <input type="text" id="address" name="address" placeholder="123 Main St">
+    </div>
+    <div>
+      <label for="city">City</label>
+      <input type="text" id="city" name="city" placeholder="New York">
+    </div>
+    <div>
+      <label for="state">State / Province</label>
+      <input type="text" id="state" name="state" placeholder="NY">
+    </div>
+    <div>
+      <label for="zip">ZIP / Postal Code</label>
+      <input type="text" id="zip" name="zip" placeholder="10001">
+    </div>
+    <div>
+      <label for="country">Country</label>
+      <select id="country" name="country">
+        <option value="">-- Select --</option>
+        <option value="United States">United States</option>
+        <option value="Canada">Canada</option>
+        <option value="United Kingdom">United Kingdom</option>
+        <option value="Australia">Australia</option>
+        <option value="India">India</option>
+        <option value="Germany">Germany</option>
+        <option value="France">France</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Professional Info -->
+<div class="card">
+  <h2>Professional Information <span class="badge">Professional Tab</span></h2>
+  <div class="grid">
+    <div>
+      <label for="jobTitle">Current Job Title</label>
+      <input type="text" id="jobTitle" name="jobTitle" placeholder="Software Engineer">
+    </div>
+    <div>
+      <label for="expYears">Years of Experience <small style="color:#888">(integer → fills "2")</small></label>
+      <input type="number" id="expYears" name="expYears" placeholder="2" step="1">
+    </div>
+    <div>
+      <label>Years of Experience <small style="color:#888">(decimal → fills "2.7")</small></label>
+      <input type="number" name="yearsExperience" placeholder="2.7" step="any">
+    </div>
+    <div>
+      <label for="expMonths">Experience Months <small style="color:#888">(fills "7")</small></label>
+      <input type="number" id="expMonths" name="expMonths" placeholder="7">
+    </div>
+    <div class="full">
+      <label for="resumeUrl">Resume / CV URL</label>
+      <input type="url" id="resumeUrl" name="resumeUrl" placeholder="https://drive.google.com/...">
+    </div>
+  </div>
+</div>
+
+<!-- Social Links -->
+<div class="card">
+  <h2>Social &amp; Links <span class="badge">Social Tab</span></h2>
+  <div class="grid">
+    <div>
+      <label for="linkedin">LinkedIn URL</label>
+      <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/...">
+    </div>
+    <div>
+      <label for="github">GitHub URL</label>
+      <input type="url" id="github" name="github" placeholder="https://github.com/...">
+    </div>
+    <div class="full">
+      <label for="portfolio">Portfolio / Website</label>
+      <input type="url" id="portfolio" name="portfolio" placeholder="https://yoursite.com">
+    </div>
+  </div>
+</div>
+
+<!-- Greenhouse-style form (uses data-field attributes) -->
+<div class="card">
+  <h2>Greenhouse-Style Fields <span class="badge">ATS Simulation</span></h2>
+  <div class="grid">
+    <div>
+      <label>First Name</label>
+      <input type="text" data-field="first_name" placeholder="First name">
+    </div>
+    <div>
+      <label>Last Name</label>
+      <input type="text" data-field="last_name" placeholder="Last name">
+    </div>
+    <div>
+      <label>Email</label>
+      <input type="email" autocomplete="email" placeholder="Email">
+    </div>
+    <div>
+      <label>Phone</label>
+      <input type="tel" autocomplete="tel" placeholder="Phone">
+    </div>
+    <div class="full">
+      <label>LinkedIn Profile</label>
+      <input type="url" placeholder="LinkedIn profile URL" aria-label="LinkedIn URL">
+    </div>
+  </div>
+</div>
+
+<!-- Lever-style form (uses aria-label) -->
+<div class="card">
+  <h2>Lever-Style Fields <span class="badge">ATS Simulation</span></h2>
+  <div class="grid">
+    <div>
+      <label>Your Name</label>
+      <input type="text" aria-label="Full name" placeholder="Your full name">
+    </div>
+    <div>
+      <label>Email Address</label>
+      <input type="email" aria-label="Email address" placeholder="Email">
+    </div>
+    <div>
+      <label>Phone</label>
+      <input type="tel" aria-label="Phone number" placeholder="Phone">
+    </div>
+    <div>
+      <label>Current Title / Role</label>
+      <input type="text" aria-label="Current title" placeholder="e.g. Software Engineer">
+    </div>
+    <div class="full">
+      <label>GitHub</label>
+      <input type="url" aria-label="GitHub profile" placeholder="GitHub URL">
+    </div>
+    <div class="full">
+      <label>Portfolio</label>
+      <input type="url" aria-label="Portfolio website" placeholder="Portfolio URL">
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

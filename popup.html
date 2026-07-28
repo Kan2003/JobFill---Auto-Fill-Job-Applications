@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JobFill</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 400px;
+      min-height: 560px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px;
+      color: #e2e8f0;
+      background: #0f1117;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1a1f35 0%, #0f1117 100%);
+      padding: 14px 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid #1e2433;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .logo {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -1px;
+      box-shadow: 0 0 12px rgba(99,102,241,0.4);
+    }
+    .app-name  { color: #f1f5f9; font-size: 15px; font-weight: 700; line-height: 1; }
+    .app-sub   { color: #64748b; font-size: 10.5px; margin-top: 3px; }
+
+    #btnFill {
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      box-shadow: 0 0 10px rgba(99,102,241,0.35);
+      white-space: nowrap;
+    }
+    #btnFill:hover  { opacity: 0.88; }
+    #btnFill:active { transform: scale(0.96); }
+
+    /* ── Status bar ── */
+    #status {
+      display: none;
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      text-align: center;
+    }
+    #status.success { display: block; background: #052e16; color: #4ade80; border-bottom: 1px solid #166534; }
+    #status.error   { display: block; background: #2d0a0a; color: #f87171; border-bottom: 1px solid #7f1d1d; }
+    #status.info    { display: block; background: #0c1a3a; color: #93c5fd; border-bottom: 1px solid #1e3a6e; }
+
+    /* ── Progress dots ── */
+    .progress {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px 0;
+      background: #0f1117;
+    }
+    .progress-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .progress-step.active { color: #93c5fd; }
+    .progress-step.done   { color: #4ade80; }
+    .progress-dot {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #1e2433;
+      border: 2px solid #2d3748;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700;
+      transition: all 0.2s;
+    }
+    .progress-step.active .progress-dot {
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      border-color: #6366f1;
+      box-shadow: 0 0 8px rgba(99,102,241,0.5);
+      color: #fff;
+    }
+    .progress-step.done .progress-dot {
+      background: #052e16;
+      border-color: #16a34a;
+      color: #4ade80;
+    }
+    .progress-line {
+      flex: 1; height: 1px;
+      background: #1e2433;
+      max-width: 40px;
+    }
+    .progress-line.done { background: #16a34a; }
+
+    /* ── Tabs (hidden, controlled via progress) ── */
+    .tab-panel { display: none; padding: 14px 16px 0; }
+    .tab-panel.active { display: block; }
+
+    /* ── Section label ── */
+    .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #475569;
+      margin: 6px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #1e2433;
+    }
+
+    /* ── Form grid ── */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .form-row.full  { grid-template-columns: 1fr; }
+    .form-row.trio  { grid-template-columns: 2fr 1fr 1fr; }
+
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .field-group label {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .field-group input {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1.5px solid #3b4a63;
+      border-radius: 7px;
+      font-size: 12.5px;
+      color: #e2e8f0;
+      background: #161b26;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field-group input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+    .field-group input::placeholder { color: #3d4f68; }
+
+    /* ── PDF Upload ── */
+    .pdf-upload-area {
+      border: 1.5px dashed #3b4a63;
+      border-radius: 9px;
+      padding: 16px 12px;
+      background: #111827;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 0;
+      text-align: center;
+    }
+    .pdf-upload-area:hover { border-color: #3b82f6; background: #0f1a2e; }
+    .pdf-icon { font-size: 22px; margin-bottom: 5px; }
+    .pdf-upload-label { font-size: 12px; font-weight: 600; color: #93c5fd; }
+    .pdf-upload-hint  { font-size: 10.5px; color: #475569; margin-top: 3px; }
+
+    .pdf-file-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+    }
+    .pdf-file-icon { font-size: 20px; flex-shrink: 0; }
+    .pdf-file-info { flex: 1; min-width: 0; }
+    .pdf-file-name {
+      font-size: 12px; font-weight: 600; color: #e2e8f0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .pdf-file-size { font-size: 10.5px; color: #4ade80; margin-top: 2px; }
+    .pdf-remove-btn {
+      flex-shrink: 0;
+      background: #2d1a1a; border: 1px solid #7f1d1d;
+      color: #f87171; border-radius: 6px;
+      width: 24px; height: 24px;
+      font-size: 11px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .pdf-remove-btn:hover { background: #450a0a; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #0f1117; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb { background: #2d3f5c; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 12px 16px 14px;
+      background: #0f1117;
+      border-top: 1px solid #1e2433;
+      margin-top: 14px;
+    }
+    .footer-row {
+      display: flex;
+      gap: 8px;
+    }
+    #btnBack {
+      padding: 9px 14px;
+      background: #1e2433;
+      color: #94a3b8;
+      border: 1.5px solid #2d3748;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    #btnBack:hover { background: #263045; }
+    #btnBack:disabled { opacity: 0.3; cursor: default; }
+
+    #btnSave {
+      flex: 1;
+      padding: 9px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      box-shadow: 0 0 12px rgba(99,102,241,0.3);
+    }
+    #btnSave:hover  { opacity: 0.88; }
+    #btnSave:active { transform: scale(0.98); }
+
+    .save-hint {
+      text-align: center;
+      font-size: 10.5px;
+      color: #334155;
+      margin-top: 7px;
+    }
+    .save-hint span { color: #3b82f6; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">JF</div>
+      <div>
+        <div class="app-name">JobFill</div>
+        <div class="app-sub">Auto Fill Job Applications</div>
+      </div>
+    </div>
+    <button id="btnFill">&#9658;&nbsp;Fill Page</button>
+  </header>
+
+  <!-- Status -->
+  <div id="status"></div>
+
+  <!-- Progress steps -->
+  <div class="progress">
+    <div class="progress-step active" data-tab="personal" id="step-personal">
+      <div class="progress-dot">1</div>
+      Personal
+    </div>
+    <div class="progress-line" id="line-1"></div>
+    <div class="progress-step" data-tab="professional" id="step-professional">
+      <div class="progress-dot">2</div>
+      Professional
+    </div>
+    <div class="progress-line" id="line-2"></div>
+    <div class="progress-step" data-tab="social" id="step-social">
+      <div class="progress-dot">3</div>
+      Social
+    </div>
+  </div>
+
+  <!-- ── Personal Info ── -->
+  <section class="tab-panel active" id="tab-personal">
+    <p class="section-title">Name</p>
+    <div class="form-row full">
+      <div class="field-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" placeholder="Jane Doe" autocomplete="name" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field-group">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" placeholder="Jane" autocomplete="given-name" />
+      </div>
+      <div class="field-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" placeholder="Doe" autocomplete="family-name" />
+      </div>
+    </div>
+
+    <p class="section-title">Contact</p>
+    <div class="form-row">
+      <div class="field-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="jane@example.com" autocomplete="email" />
+      </div>
+      <div class="field-group">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" placeholder="+1 555 000 0000" autocomplete="tel" />
+      </div>
+    </div>
+
+    <p class="section-title">Address</p>
+    <div class="form-row full">
+      <div class="field-group">
+        <label for="address">Street Address</label>
+        <input type="text" id="address" placeholder="123 Main St" autocomplete="street-address" />
+      </div>
+    </div>
+    <div class="form-row trio">
+      <div class="field-group">
+        <label for="city">City</label>
+        <input type="text" id="city" placeholder="San Francisco" autocomplete="address-level2" />
+      </div>
+      <div class="field-group">
+        <label for="state">State</label>
+        <input type="text" id="state" placeholder="CA" autocomplete="address-level1" />
+      </div>
+      <div class="field-group">
+        <label for="zip">ZIP</label>
+        <input type="text" id="zip" placeholder="94105" autocomplete="postal-code" />
+      </div>
+    </div>
+    <div class="form-row full" style="margin-bottom:0">
+      <div class="field-group">
+        <label for="country">Country</label>
+        <input type="text" id="country" placeholder="United States" autocomplete="country-name" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Professional Info ── -->
+  <section class="tab-panel" id="tab-professional">
+    <p class="section-title">Role</p>
+    <div class="form-row full">
+      <div class="field-group">
+        <label for="jobTitle">Current Job Title</label>
+        <input type="text" id="jobTitle" placeholder="Senior Software Engineer" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field-group">
+        <label for="expYears">Experience (Years)</label>
+        <input type="number" id="expYears" placeholder="2" min="0" max="50" />
+      </div>
+      <div class="field-group">
+        <label for="expMonths">Experience (Months)</label>
+        <input type="number" id="expMonths" placeholder="7" min="0" max="11" />
+      </div>
+    </div>
+
+    <p class="section-title">Resume</p>
+    <div class="form-row full">
+      <div class="field-group">
+        <label for="resumeUrl">Resume / CV Link</label>
+        <input type="url" id="resumeUrl" placeholder="https://drive.google.com/..." />
+      </div>
+    </div>
+
+    <p class="section-title">Resume PDF</p>
+    <input type="file" id="resumeFilePicker" accept=".pdf,application/pdf" style="display:none" />
+    <div id="pdfUploadArea" class="pdf-upload-area" onclick="document.getElementById('resumeFilePicker').click()">
+      <div id="pdfEmpty">
+        <div class="pdf-icon">&#128196;</div>
+        <div class="pdf-upload-label">Click to upload Resume PDF</div>
+        <div class="pdf-upload-hint">PDF only &bull; max ~4 MB</div>
+      </div>
+      <div id="pdfLoaded" style="display:none">
+        <div class="pdf-file-row">
+          <div class="pdf-file-icon">&#128196;</div>
+          <div class="pdf-file-info">
+            <div id="pdfFileName" class="pdf-file-name">resume.pdf</div>
+            <div id="pdfFileSize" class="pdf-file-size">0 KB</div>
+          </div>
+          <button id="pdfRemoveBtn" class="pdf-remove-btn" title="Remove">&#10005;</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Social & Links ── -->
+  <section class="tab-panel" id="tab-social">
+    <p class="section-title">Profiles</p>
+    <div class="form-row full">
+      <div class="field-group">
+        <label for="linkedin">LinkedIn URL</label>
+        <input type="url" id="linkedin" placeholder="https://linkedin.com/in/janedoe" />
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="field-group">
+        <label for="github">GitHub URL</label>
+        <input type="url" id="github" placeholder="https://github.com/janedoe" />
+      </div>
+    </div>
+    <div class="form-row full" style="margin-bottom:0">
+      <div class="field-group">
+        <label for="portfolio">Portfolio / Website</label>
+        <input type="url" id="portfolio" placeholder="https://janedoe.dev" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-row">
+      <button id="btnBack">&#8592; Back</button>
+      <button id="btnSave">Save &amp; Continue &#8594;</button>
+    </div>
+    <p class="save-hint">Stored locally &mdash; <span>never sent anywhere</span></p>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

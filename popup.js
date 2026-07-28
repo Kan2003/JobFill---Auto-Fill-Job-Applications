@@ -4,11 +4,16 @@ const FIELD_MAP = [
   "fullName", "firstName", "lastName",
   "email", "phone",
   "address", "city", "state", "zip", "country",
-  "jobTitle", "expYears", "expMonths", "resumeUrl",
+  "jobTitle", "currentCompany", "expYears", "expMonths", "skills",
+  "noticePeriod", "desiredSalary", "willingToRelocate", "startDateAvailable",
+  "resumeUrl",
   "linkedin", "github", "portfolio"
 ];
 
-const TABS = ["personal", "professional", "social"];
+// Education is stored as one nested object under the "education" key
+const EDUCATION_FIELDS = ["school", "degree", "fieldOfStudy", "graduationDate", "gpa", "location"];
+
+const TABS = ["personal", "professional", "education", "social"];
 let currentTab = 0;
 
 // ── Status bar ───────────────────────────────────────────────────────────────
@@ -29,10 +34,10 @@ function updateProgress() {
   });
 
   // Connecting lines
-  const line1 = document.getElementById("line-1");
-  const line2 = document.getElementById("line-2");
-  line1.classList.toggle("done", currentTab > 0);
-  line2.classList.toggle("done", currentTab > 1);
+  for (let i = 1; i < TABS.length; i++) {
+    const line = document.getElementById("line-" + i);
+    if (line) line.classList.toggle("done", currentTab >= i);
+  }
 
   // Back button
   document.getElementById("btnBack").disabled = currentTab === 0;
@@ -69,6 +74,10 @@ function showPdfEmpty() {
   document.getElementById("pdfLoaded").style.display = "none";
 }
 
+document.getElementById("pdfUploadArea").addEventListener("click", () => {
+  document.getElementById("resumeFilePicker").click();
+});
+
 document.getElementById("resumeFilePicker").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -103,10 +112,15 @@ document.getElementById("pdfRemoveBtn").addEventListener("click", (e) => {
 
 // ── Load saved data ──────────────────────────────────────────────────────────
 function loadData() {
-  chrome.storage.local.get([...FIELD_MAP, "resumePdfName", "resumePdf"], (data) => {
+  chrome.storage.local.get([...FIELD_MAP, "education", "resumePdfName", "resumePdf"], (data) => {
     FIELD_MAP.forEach((key) => {
       const el = document.getElementById(key);
       if (el && data[key] !== undefined) el.value = data[key];
+    });
+    const edu = data.education || {};
+    EDUCATION_FIELDS.forEach((key) => {
+      const el = document.getElementById(key);
+      if (el && edu[key] !== undefined) el.value = edu[key];
     });
     if (data.resumePdfName && data.resumePdf) {
       // Estimate stored size from base64 length
@@ -123,6 +137,12 @@ function collectData() {
     const el = document.getElementById(key);
     if (el) data[key] = el.value.trim();
   });
+  const education = {};
+  EDUCATION_FIELDS.forEach((key) => {
+    const el = document.getElementById(key);
+    if (el) education[key] = el.value.trim();
+  });
+  data.education = education;
   return data;
 }
 
@@ -146,7 +166,9 @@ function saveAndAdvance() {
 // ── Fill the active browser tab ──────────────────────────────────────────────
 function fillPage() {
   const data = collectData();
-  const hasAny = Object.values(data).some((v) => v !== "");
+  const hasAny = Object.values(data).some((v) =>
+    typeof v === "string" ? v !== "" : Object.values(v || {}).some((s) => s !== "")
+  );
   if (!hasAny) {
     showStatus("Add your details first, then click Fill Page.", "error");
     return;

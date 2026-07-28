@@ -71,15 +71,15 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 6px;
-      padding: 10px 16px 0;
+      gap: 4px;
+      padding: 10px 12px 0;
       background: #0f1117;
     }
     .progress-step {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 11px;
+      gap: 5px;
+      font-size: 10.5px;
       font-weight: 600;
       color: #475569;
       cursor: pointer;
@@ -155,7 +155,8 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
-    .field-group input {
+    .field-group input,
+    .field-group select {
       width: 100%;
       padding: 7px 10px;
       border: 1.5px solid #3b4a63;
@@ -166,11 +167,13 @@
       outline: none;
       transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .field-group input:focus {
+    .field-group input:focus,
+    .field-group select:focus {
       border-color: #3b82f6;
       box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
     }
     .field-group input::placeholder { color: #3d4f68; }
+    .field-group input[type="date"] { color-scheme: dark; }
 
     /* ── PDF Upload ── */
     .pdf-upload-area {
@@ -297,8 +300,13 @@
       Professional
     </div>
     <div class="progress-line" id="line-2"></div>
-    <div class="progress-step" data-tab="social" id="step-social">
+    <div class="progress-step" data-tab="education" id="step-education">
       <div class="progress-dot">3</div>
+      Education
+    </div>
+    <div class="progress-line" id="line-3"></div>
+    <div class="progress-step" data-tab="social" id="step-social">
+      <div class="progress-dot">4</div>
       Social
     </div>
   </div>
@@ -373,6 +381,12 @@
         <input type="text" id="jobTitle" placeholder="Senior Software Engineer" />
       </div>
     </div>
+    <div class="form-row full">
+      <div class="field-group">
+        <label for="currentCompany">Current Company</label>
+        <input type="text" id="currentCompany" placeholder="Acme Corp" autocomplete="organization" />
+      </div>
+    </div>
     <div class="form-row">
       <div class="field-group">
         <label for="expYears">Experience (Years)</label>
@@ -381,6 +395,38 @@
       <div class="field-group">
         <label for="expMonths">Experience (Months)</label>
         <input type="number" id="expMonths" placeholder="7" min="0" max="11" />
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="field-group">
+        <label for="skills">Skills (comma separated)</label>
+        <input type="text" id="skills" placeholder="JavaScript, React, Node.js, SQL" />
+      </div>
+    </div>
+
+    <p class="section-title">Availability &amp; Compensation</p>
+    <div class="form-row">
+      <div class="field-group">
+        <label for="noticePeriod">Notice Period</label>
+        <input type="text" id="noticePeriod" placeholder="30 days" />
+      </div>
+      <div class="field-group">
+        <label for="desiredSalary">Desired Salary</label>
+        <input type="text" id="desiredSalary" placeholder="$120,000 / 12 LPA" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field-group">
+        <label for="willingToRelocate">Willing to Relocate?</label>
+        <select id="willingToRelocate">
+          <option value="">Select...</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="startDateAvailable">Available Start Date</label>
+        <input type="date" id="startDateAvailable" />
       </div>
     </div>
 
@@ -394,7 +440,7 @@
 
     <p class="section-title">Resume PDF</p>
     <input type="file" id="resumeFilePicker" accept=".pdf,application/pdf" style="display:none" />
-    <div id="pdfUploadArea" class="pdf-upload-area" onclick="document.getElementById('resumeFilePicker').click()">
+    <div id="pdfUploadArea" class="pdf-upload-area">
       <div id="pdfEmpty">
         <div class="pdf-icon">&#128196;</div>
         <div class="pdf-upload-label">Click to upload Resume PDF</div>
@@ -409,6 +455,43 @@
           </div>
           <button id="pdfRemoveBtn" class="pdf-remove-btn" title="Remove">&#10005;</button>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Education ── -->
+  <section class="tab-panel" id="tab-education">
+    <p class="section-title">Education</p>
+    <div class="form-row full">
+      <div class="field-group">
+        <label for="school">College / University</label>
+        <input type="text" id="school" placeholder="Stanford University" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field-group">
+        <label for="degree">Degree</label>
+        <input type="text" id="degree" placeholder="B.Tech / Bachelor's" />
+      </div>
+      <div class="field-group">
+        <label for="fieldOfStudy">Field of Study / Major</label>
+        <input type="text" id="fieldOfStudy" placeholder="Computer Science" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field-group">
+        <label for="graduationDate">Graduation Date</label>
+        <input type="text" id="graduationDate" placeholder="2024 or 06/2024" />
+      </div>
+      <div class="field-group">
+        <label for="gpa">GPA / CGPA</label>
+        <input type="text" id="gpa" placeholder="3.7 / 8.2" />
+      </div>
+    </div>
+    <div class="form-row full" style="margin-bottom:0">
+      <div class="field-group">
+        <label for="location">Location</label>
+        <input type="text" id="location" placeholder="Mumbai, India" />
       </div>
     </div>
   </section>

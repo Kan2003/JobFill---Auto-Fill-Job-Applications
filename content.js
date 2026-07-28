@@ -12,13 +12,29 @@ const FIELD_MAPPINGS = {
   state:           ["^state$","province","region","state.province"],
   zip:             ["zip","postal","zipcode","zip.code","postcode","postalcode","zip_code"],
   country:         ["^country$","nation","country.name","country_code"],
-  linkedin:        ["linkedin","linked.in","linkedin.url","linkedin_url","linkedin.profile"],
+  linkedin:        ["linkedin","linked.in","linkedin.url","linkedin_url","linkedin.profile" , "profilelinkedin"],
   github:          ["github","git.hub","github.url","github_url","github.profile"],
   portfolio:       ["portfolio","personal.website","personalwebsite","web.site","website","portfolio.url","portfolio_url"],
   jobTitle:        ["job.title","jobtitle","job_title","current.title","currenttitle","^title$","position","current.position","currentposition","role"],
+  currentCompany:  ["current.company","currentcompany","current_company","company.name","companyname","company_name","^company$","^employer$","current.employer","currentemployer","organization","organisation"],
+  skills:          ["skills","skill.set","skillset","skill_set","key.skills","keyskills","technical.skills","technicalskills","technologies","competencies"],
+  noticePeriod:    ["notice.period","noticeperiod","notice_period","^notice$"],
+  desiredSalary:   ["desired.salary","desiredsalary","desired_salary","expected.salary","expectedsalary","expected_salary","salary.expectation","salaryexpectation","expected.ctc","expectedctc","desired.ctc","desiredctc","salary.requirement","desired.pay","expected.pay","desired.compensation","expected.compensation","^salary$","^ctc$","^compensation$"],
+  willingToRelocate: ["relocate","relocation","willing.to.relocate","willingtorelocate","open.to.relocation"],
+  startDateAvailable: ["start.date","startdate","start_date","available.start","availablestart","availability.date","availabilitydate","date.available","dateavailable","earliest.start","earlieststart","joining.date","joiningdate","date.of.joining","dateofjoining","available.from","availablefrom","when.can.you.start"],
   expYears:        ["years.of.experience","yearsofexperience","years_of_experience","years.experience","yearsexperience","experience.years","^experience$","^years$","exp.years","expyears","totalyears","total.years"],
   expMonths:       ["experience.months","experiencemonths","exp.months","expmonths","months.of.experience","monthsofexperience","remaining.months","remainingmonths","^months$"],
   resumeUrl:       ["resume","cv","resume.url","cv.url","resume_url","cv_url","resume.link","cv.link"],
+  // Nested group — sub-keys are matched in order, so keep specific ones first;
+  // "school" has the broadest patterns (also used as the row anchor) and goes last.
+  education: {
+    location:       ["school.location", "college.location", "university.location", "campus.location", "education.location"],
+    fieldOfStudy:   ["field.of.study", "major", "discipline", "specialization", "specialisation", "branch", "stream"],
+    degree:         ["degree", "qualification", "education.level"],
+    graduationDate: ["graduation", "end.date", "passing.year", "year.of.passing", "completion"],
+    gpa:            ["gpa", "cgpa", "grade.point", "grade.average"],
+    school:         ["school", "university", "college", "institution", "institute", "alma.mater"],
+  },
 };
 
 // ── Native value setter trick for React / controlled inputs ──────────────────
@@ -116,10 +132,8 @@ function getLabelText(el) {
   return "";
 }
 
-// ── Check if a fingerprint matches any pattern for a given data key ──────────
-function matchesKey(fingerprint, dataKey) {
-  const patterns = FIELD_MAPPINGS[dataKey];
-  if (!patterns) return false;
+// ── Check if a fingerprint matches any of the given patterns ─────────────────
+function matchesPatterns(fingerprint, patterns) {
   const flat = normalise(fingerprint);
   return patterns.some((pattern) => {
     // Handle anchored patterns like "^name$"
@@ -129,6 +143,12 @@ function matchesKey(fingerprint, dataKey) {
     }
     return flat.includes(normalise(pattern));
   });
+}
+
+function matchesKey(fingerprint, dataKey) {
+  const patterns = FIELD_MAPPINGS[dataKey];
+  if (!Array.isArray(patterns)) return false;
+  return matchesPatterns(fingerprint, patterns);
 }
 
 // ── Try to fill a <select> element (country/state dropdowns) ─────────────────
@@ -200,7 +220,7 @@ function isResumeFileInput(el) {
 // ── Main fill routine ─────────────────────────────────────────────────────────
 function fillFields(userData) {
   let filled = 0;
-  const inputTypes = ["text", "email", "tel", "url", "number", "search", ""];
+  const inputTypes = ["text", "email", "tel", "url", "number", "search", "date", ""];
 
   // Collect all fillable elements (including inside shadow roots)
   const elements = collectElements(document);
@@ -221,6 +241,20 @@ function fillFields(userData) {
 
     // Determine which data key matches
     for (const dataKey of Object.keys(FIELD_MAPPINGS)) {
+      // Nested education group: match sub-fields against userData.education
+      if (dataKey === "education") {
+        const edu = userData.education || {};
+        let done = false;
+        for (const subKey of Object.keys(FIELD_MAPPINGS.education)) {
+          if (!edu[subKey]) continue;
+          if (!matchesPatterns(fp, FIELD_MAPPINGS.education[subKey])) continue;
+          const ok = isSelect ? fillSelect(el, edu[subKey]) : fillInput(el, edu[subKey]);
+          if (ok) { filled++; done = true; break; }
+        }
+        if (done) break;
+        continue;
+      }
+
       if (matchesKey(fp, dataKey)) {
         let value;
         if (dataKey === "expYears") {
